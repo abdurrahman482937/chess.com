@@ -12,6 +12,8 @@ const chess = new Chess();
 let players = {};
 let currentPlayer = "w"
 
+const PORT = process.env.PORT || 3000;
+
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")))
 
@@ -58,6 +60,6 @@ io.on("connection", function (unique) {
     })
 })
 
-server.listen(3000, function () {
+server.listen(PORT, function () {
     console.log('listening on port "http://localhost:3000"')
 })

@@ -2,10 +2,12 @@
   "name": "chess.com",
   "version": "1.0.0",
   "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start"
+},
   "keywords": [
     "chess.com"
   ],
