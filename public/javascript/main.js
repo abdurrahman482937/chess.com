@@ -20,7 +20,7 @@ const renderBoard = () => {
             if (square) {
                 let pieceElement = document.createElement("div");
                 pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
-                pieceElement.innerText = getPieceUnicode(square);
+                pieceElement.innerHTML = getPieceSvg(square);
                 pieceElement.draggable = playerRole === square.color;
                 pieceElement.addEventListener("dragstart", (e) => {
                     if (pieceElement.draggable) {
@@ -54,42 +54,87 @@ const renderBoard = () => {
         });
     });
     if (playerRole === "b") {
-        boardElement.classList.add("flipped")
+        boardElement.classList.add("rotate-180");
+        document.querySelectorAll(".piece").forEach(piece => {
+            piece.classList.add("rotate-180");
+        });
     } else {
-        boardElement.classList.remove("flipped")
+        boardElement.classList.remove("rotate-180");
+        document.querySelectorAll(".piece").forEach(piece => {
+            piece.classList.remove("rotate-180");
+        });
     }
 }
+
+const promotionDialog = document.getElementById("promotion-dialog");
+let promotionMove = null;
 
 const handleMove = (source, target) => {
-    const move = {
-        from: `${String.fromCharCode(97 + source.col)}${8 - source.row}`,
-        to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
-        promotion: "q"
-    }
-    const result = chess.move(move);
-    if (result) {
-        socket.emit("move", move);
-        renderBoard();
+    const from = `${String.fromCharCode(97 + source.col)}${8 - source.row}`;
+    const to = `${String.fromCharCode(97 + target.col)}${8 - target.row}`;
+    const piece = chess.get(from);
+
+    if (piece && piece.type === 'p' && (to[1] === '8' || to[1] === '1')) {
+        promotionMove = { from, to };
+        promotionDialog.classList.remove("hidden");
+    } else {
+        const move = { from, to, promotion: "q" };
+        const result = chess.move(move);
+        if (result) {
+            socket.emit("move", move);
+            renderBoard();
+        }
     }
 }
 
-const getPieceUnicode = (piece) => {
-    const unicodePieces = {
-        p: "♟",
-        r: "♜",
-        n: "♞",
-        b: "♝",
-        q: "♛",
-        k: "♚",
-        P: "♙",
-        R: "♖",
-        N: "♘",
-        B: "♗",
-        Q: "♕",
-        K: "♔"
-    };
+promotionDialog.addEventListener("click", (e) => {
+    if (e.target.tagName === "BUTTON") {
+        const promotion = e.target.getAttribute("data-promotion");
+        if (promotionMove) {
+            const move = { ...promotionMove, promotion };
+            const result = chess.move(move);
+            if (result) {
+                socket.emit("move", move);
+                renderBoard();
+            }
+            promotionDialog.classList.add("hidden");
+            promotionMove = null;
+        }
+    }
+});
 
-    return unicodePieces[piece.type] || "";
+const getPieceSvg = (piece) => {
+    const svgPieces = {
+        'p': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg'
+        },
+        'r': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg'
+        },
+        'n': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg'
+        },
+        'b': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg'
+        },
+        'q': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg'
+        },
+        'k': {
+            'w': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+            'b': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
+        }
+    };
+    const svgUrl = svgPieces[piece.type]?.[piece.color];
+    if (svgUrl) {
+        return `<img src="${svgUrl}" alt="${piece.type}" class="w-full h-full">`;
+    }
+    return "";
 };
 
 socket.on("playerRole", function (role) {
@@ -111,4 +156,23 @@ socket.on("move", function (move) {
     chess.move(move)
     renderBoard();
 })
-renderBoard()
+
+socket.on("InvalidMove", () => {
+    const boardElement = document.querySelector(".chessboard");
+    boardElement.classList.add("shake");
+    setTimeout(() => {
+        boardElement.classList.remove("shake");
+    }, 1000);
+});
+const resetButton = document.getElementById("resetButton");
+
+resetButton.addEventListener("click", () => {
+    socket.emit("reset");
+});
+
+socket.on("reset", () => {
+    chess.reset();
+    renderBoard();
+});
+
+renderBoard();

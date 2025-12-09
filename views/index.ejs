@@ -8,8 +8,20 @@
     <title>Chess.com</title>
   </head>
   <body>
-    <div class="bg-zinc-700 w-full h-screen flex items-center justify-center">
-      <div class="chessboard w-[30rem] h-[30rem]"></div>
+    <div class="bg-zinc-700 w-full h-screen flex flex-col items-center justify-center">
+      <div class="chessboard w-[30rem] h-[30rem] grid grid-cols-8 grid-rows-8"></div>
+      <button id="resetButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+        Reset Game
+      </button>
+    </div>
+    <div id="promotion-dialog" class="hidden absolute bg-white p-4 rounded shadow-lg">
+      <h3 class="text-lg font-bold mb-2">Promote to:</h3>
+      <div class="flex space-x-2">
+        <button data-promotion="q" class="w-12 h-12 bg-gray-200 rounded hover:bg-gray-300">♕</button>
+        <button data-promotion="r" class="w-12 h-12 bg-gray-200 rounded hover:bg-gray-300">♖</button>
+        <button data-promotion="b" class="w-12 h-12 bg-gray-200 rounded hover:bg-gray-300">♗</button>
+        <button data-promotion="n" class="w-12 h-12 bg-gray-200 rounded hover:bg-gray-300">♘</button>
+      </div>
     </div>
     <script
       src="https://cdn.socket.io/4.8.1/socket.io.min.js"

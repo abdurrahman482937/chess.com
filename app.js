@@ -51,13 +51,18 @@ io.on("connection", function (unique) {
                 io.emit("boardState", chess.fen())
             } else {
                 console.log("Invalid move : ", move);
-                unique.emit("move", move)
+                unique.emit("InvalidMove", move)
             }
         } catch (err) {
             console.log(err);
             unique.emit("InvalidMove", move);
         }
     })
+
+    unique.on("reset", () => {
+        chess.reset();
+        io.emit("reset");
+    });
 })
 
 server.listen(PORT, function () {
