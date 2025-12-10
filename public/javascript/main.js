@@ -186,4 +186,22 @@ socket.on("chatMessage", (message) => {
     chatBox.scrollTop = chatBox.scrollHeight;
 });
 
+const gameOverDialog = document.getElementById("game-over-dialog");
+const gameOverMessage = document.getElementById("game-over-message");
+const resetButton = document.getElementById("reset-button");
+
+socket.on("gameOver", (message) => {
+    gameOverMessage.textContent = message;
+    gameOverDialog.classList.remove("hidden");
+});
+
+resetButton.addEventListener("click", () => {
+    socket.emit("reset");
+});
+
+socket.on("reset", () => {
+    gameOverDialog.classList.add("hidden");
+    renderBoard();
+});
+
 renderBoard();

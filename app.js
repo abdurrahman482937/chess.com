@@ -51,29 +51,45 @@ io.on("connection", function (unique) {
 
     unique.on("disconnect", function () {
         if (unique.id === players.white) {
-            delete players.white
+            delete players.white;
+            clearInterval(timerInterval);
+            io.emit("gameOver", "White disconnected. Black wins.");
         } else if (unique.id === players.black) {
-            delete players.black
+            delete players.black;
+            clearInterval(timerInterval);
+            io.emit("gameOver", "Black disconnected. White wins.");
         }
-    })
+    });
+
     unique.on("move", function (move) {
         try {
             if (chess.turn() === "w" && unique.id !== players.white) return;
             if (chess.turn() === "b" && unique.id !== players.black) return;
-            const result = chess.move(move)
+            const result = chess.move(move);
             if (result) {
                 currentPlayer = chess.turn();
-                io.emit("move", move)
-                io.emit("boardState", chess.fen())
+                io.emit("move", move);
+                io.emit("boardState", chess.fen());
+
+                if (chess.isGameOver()) {
+                    clearInterval(timerInterval);
+                    if (chess.isCheckmate()) {
+                        io.emit("gameOver", `Checkmate! ${currentPlayer === "w" ? "Black" : "White"} wins.`);
+                    } else if (chess.isStalemate()) {
+                        io.emit("gameOver", "Stalemate! It's a draw.");
+                    } else if (chess.isDraw()) {
+                        io.emit("gameOver", "It's a draw!");
+                    }
+                }
             } else {
                 console.log("Invalid move : ", move);
-                unique.emit("InvalidMove", move)
+                unique.emit("InvalidMove", move);
             }
         } catch (err) {
             console.log(err);
             unique.emit("InvalidMove", move);
         }
-    })
+    });
 
     unique.on("reset", () => {
         chess.reset();
