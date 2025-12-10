@@ -1,19 +1,67 @@
-.light {
-    background-color: #f0d9b5;
+/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+.absolute {
+  position: absolute;
 }
-
-.dark {
-    background-color: #b58863;
+.static {
+  position: static;
 }
-
-.shake {
-    animation: shake 0.5s;
+.flex {
+  display: flex;
 }
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
+.grid {
+  display: grid;
+}
+.hidden {
+  display: none;
+}
+.h-\[30rem\] {
+  height: 30rem;
+}
+.h-full {
+  height: 100%;
+}
+.h-screen {
+  height: 100vh;
+}
+.w-\[30rem\] {
+  width: 30rem;
+}
+.w-full {
+  width: 100%;
+}
+.flex-grow {
+  flex-grow: 1;
+}
+.rotate-180 {
+  rotate: 180deg;
+}
+.grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+.grid-rows-8 {
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+.bg-\[\#b58863\] {
+  background-color: #b58863;
+}
+.bg-\[\#f0d9b5\] {
+  background-color: #f0d9b5;
+}
+.focus\:outline-none {
+  &:focus {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
 }

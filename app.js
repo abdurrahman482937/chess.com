@@ -10,7 +10,22 @@ const io = socket(server);
 
 const chess = new Chess();
 let players = {};
-let currentPlayer = "w"
+let currentPlayer = "w";
+let timers = {};
+let timerInterval = null;
+
+const startTimers = () => {
+    clearInterval(timerInterval);
+    timers = { w: 600, b: 600 }; // 10 minutes per player
+    timerInterval = setInterval(() => {
+        timers[currentPlayer]--;
+        if (timers[currentPlayer] <= 0) {
+            clearInterval(timerInterval);
+            io.emit("gameOver", `Time's up! ${currentPlayer === "w" ? "Black" : "White"} wins.`);
+        }
+        io.emit("timeUpdate", timers);
+    }, 1000);
+};
 
 const PORT = process.env.PORT || 3000;
 
@@ -29,6 +44,7 @@ io.on("connection", function (unique) {
     } else if (!players.black) {
         players.black = unique.id
         unique.emit("playerRole", "b");
+        startTimers();
     } else {
         unique.emit("spectatorRole");
     }
@@ -61,7 +77,19 @@ io.on("connection", function (unique) {
 
     unique.on("reset", () => {
         chess.reset();
+        currentPlayer = "w";
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timers = {};
+        if (players.white && players.black) {
+            startTimers();
+        }
+        io.emit("boardState", chess.fen());
         io.emit("reset");
+    });
+
+    unique.on("chatMessage", (message) => {
+        io.emit("chatMessage", message);
     });
 })
 

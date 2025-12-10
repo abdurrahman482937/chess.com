@@ -12,7 +12,7 @@ const renderBoard = () => {
     board.forEach((row, rowIndex) => {
         row.forEach((square, squareIndex) => {
             let squareElement = document.createElement("div")
-            squareElement.classList.add("square", (rowIndex + squareIndex) % 2 === 0 ? "light" : "dark")
+            squareElement.classList.add("square", (rowIndex + squareIndex) % 2 === 0 ? "bg-[#f0d9b5]" : "bg-[#b58863]");
 
             squareElement.dataset.row = rowIndex;
             squareElement.dataset.col = squareIndex;
@@ -164,15 +164,26 @@ socket.on("InvalidMove", () => {
         boardElement.classList.remove("shake");
     }, 1000);
 });
-const resetButton = document.getElementById("resetButton");
 
-resetButton.addEventListener("click", () => {
-    socket.emit("reset");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatBox = document.getElementById("chat-box");
+
+chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const message = chatInput.value;
+    if (message) {
+        socket.emit("chatMessage", message);
+        chatInput.value = "";
+    }
 });
 
-socket.on("reset", () => {
-    chess.reset();
-    renderBoard();
+socket.on("chatMessage", (message) => {
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("text-white", "mb-2");
+    messageElement.textContent = message;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
 });
 
 renderBoard();
